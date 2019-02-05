@@ -473,7 +473,7 @@ create_tables() -> create_tables([?TABLE_DEF]).
 create_tables([]) ->
     ok;
 create_tables([{Table, Attributes} | Ts]) ->
-    case ramnesia:create_table(Table, Attributes) of
+    case mnevis:create_table(Table, Attributes) of
         {atomic, ok}                        -> create_tables(Ts);
         {aborted, {already_exists, ?TABLE}} -> create_tables(Ts);
         Err                                 -> Err
