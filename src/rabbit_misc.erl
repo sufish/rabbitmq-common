@@ -511,26 +511,7 @@ execute_mnesia_transaction(TxFun) ->
     %% Making this a sync_transaction allows us to use dirty_read
     %% elsewhere and get a consistent result even when that read
     %% executes on a different node.
-    case worker_pool:submit(
-           fun () ->
-                   case mnevis:is_transaction() of
-                       false -> DiskLogBefore = mnesia_dumper:get_log_writes(),
-                                Res = mnevis:transaction(TxFun),
-                                io:format("~nTransaction result ~p~n", [Res]),
-                                DiskLogAfter  = mnesia_dumper:get_log_writes(),
-                                case DiskLogAfter == DiskLogBefore of
-                                    true  -> file_handle_cache_stats:update(
-                                              mnesia_ram_tx),
-                                             Res;
-                                    false -> file_handle_cache_stats:update(
-                                              mnesia_disk_tx),
-                                             {sync, Res}
-                                end;
-                       true  -> mnevis:transaction(TxFun)
-                   end
-           end, single) of
-        {sync, {atomic,  Result}} -> mnesia_sync:sync(), Result;
-        {sync, {aborted, Reason}} -> throw({error, Reason});
+    case mnevis:transaction(TxFun) of
         {atomic,  Result}         -> Result;
         {aborted, Reason}         -> throw({error, Reason})
     end.
@@ -555,7 +536,6 @@ execute_mnesia_tx_with_tail(TxFun) ->
     case mnevis:is_transaction() of
         true  -> execute_mnesia_transaction(TxFun);
         false -> TailFun = execute_mnesia_transaction(TxFun),
-        io:format("Execute tail fun ~p~n", [TailFun]),
                  TailFun()
     end.
 
