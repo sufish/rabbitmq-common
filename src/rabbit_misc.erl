@@ -85,6 +85,7 @@
 -export([report_default_thread_pool_size/0]).
 -export([get_gc_info/1]).
 -export([group_proplists_by/2]).
+-export([mnevis_transaction/1]).
 
 %% Horrible macro to use in guards
 -define(IS_BENIGN_EXIT(R),
@@ -511,10 +512,13 @@ execute_mnesia_transaction(TxFun) ->
     %% Making this a sync_transaction allows us to use dirty_read
     %% elsewhere and get a consistent result even when that read
     %% executes on a different node.
-    case mnevis:transaction(TxFun) of
+    case mnevis_transaction(TxFun) of
         {atomic,  Result}         -> Result;
         {aborted, Reason}         -> throw({error, Reason})
     end.
+
+mnevis_transaction(TxFun) ->
+    mnevis:transaction(TxFun, [], infinity, [{wait_for_commit, true}]).
 
 %% Like execute_mnesia_transaction/1 with additional Pre- and Post-
 %% commit function
