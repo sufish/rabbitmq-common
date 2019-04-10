@@ -16,7 +16,7 @@ define PROJECT_APP_EXTRA_KEYS
 endef
 
 LOCAL_DEPS = compiler crypto public_key sasl ssl syntax_tools tools xmerl
-DEPS = lager jsx ranch recon
+DEPS = lager jsx ranch recon mnevis
 
 # FIXME: Use erlang.mk patched for RabbitMQ, while waiting for PRs to be
 # reviewed and merged.
@@ -46,6 +46,10 @@ WITHOUT = plugins/proper
 PLT_APPS += mnesia crypto ssl
 
 include mk/rabbitmq-components.mk
+
+dep_mnevis = git https://github.com/rabbitmq/mnevis read-only-query
+dep_ra = git https://github.com/rabbitmq/ra.git read-only-query-old
+
 include erlang.mk
 
 -include development.post.mk
