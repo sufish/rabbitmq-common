@@ -47,7 +47,7 @@ PLT_APPS += mnesia crypto ssl
 
 include mk/rabbitmq-components.mk
 
-dep_mnevis = git https://github.com/rabbitmq/mnevis read-only-query
+dep_mnevis = git https://github.com/rabbitmq/mnevis master
 dep_ra = git https://github.com/rabbitmq/ra.git read-only-query-old
 
 include erlang.mk
